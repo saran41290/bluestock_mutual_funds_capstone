@@ -8,6 +8,8 @@ conn = sqlite3.connect(
 cursor = conn.cursor()
 
 cursor.executescript("""
+DELETE FROM fact_portfolio;
+DELETE FROM fact_sip_industry;
 DELETE FROM fact_nav;
 DELETE FROM fact_transactions;
 DELETE FROM fact_performance;
@@ -86,16 +88,17 @@ nav["nav_date_id"] = (
 nav = nav.sort_values(
     ["amfi_code", "date"]
 )
-nav["daily_return"] = (
+nav["daily_return_pct"] = (
     nav.groupby("amfi_code")["nav"]
-    .pct_change()
+    .pct_change() * 100
 )
+
 nav = nav[
 [
     "amfi_code",
     "nav_date_id",
     "nav",
-    "daily_return"
+    "daily_return_pct"
 ]
 ]
 nav.to_sql(
@@ -116,17 +119,17 @@ tx["transaction_date"] = pd.to_datetime(
     tx["transaction_date"]
 )
 
-tx["tx_date_id"] = (
-    tx["transaction_date"]
-    .dt.strftime("%Y%m%d")
-    .astype(int)
+tx = tx.rename(
+    columns={
+        "transaction_date": "date"
+    }
 )
 
 tx = tx[
 [
     "investor_id",
     "amfi_code",
-    "tx_date_id",
+    "date",
     "amount_inr",
     "state",
     "city",
@@ -158,7 +161,8 @@ perf = perf[
     "sharpe_ratio",
     "sortino_ratio",
     "alpha",
-    "beta"
+    "beta",
+    "max_drawdown_pct"
 ]
 ]
 
@@ -176,10 +180,7 @@ print(f"fact_performance loaded : {len(perf)} rows")
 aum = pd.read_csv(
     "data/raw/03_aum_by_fund_house.csv"
 )
-
-aum["date"] = pd.to_datetime(
-    aum["date"]
-)
+aum["date"] = pd.to_datetime(aum["date"])
 
 aum["date_id"] = (
     aum["date"]
@@ -191,10 +192,10 @@ aum = aum[
 [
     "fund_house",
     "date_id",
-    "aum_crore"
+    "aum_crore",
+    "num_schemes"
 ]
 ]
-
 aum.to_sql(
     "fact_aum",
     engine,
@@ -204,6 +205,46 @@ aum.to_sql(
 
 print(f"fact_aum loaded : {len(aum)} rows")
 
+#fact_sip_industry
+sip = pd.read_csv(
+    "data/raw/04_monthly_sip_inflows.csv"
+)
+
+
+sip.to_sql(
+    "fact_sip_industry",
+    engine,
+    if_exists="append",
+    index=False
+)
+
+print(f"fact_sip_industry loaded : {len(sip)} rows")
+
+#fact_portfolio
+portfolio = pd.read_csv(
+    "data/raw/09_portfolio_holdings.csv"
+)
+
+portfolio["portfolio_date"] = pd.to_datetime(
+    portfolio["portfolio_date"]
+)
+portfolio = portfolio[
+[
+    "amfi_code",
+    "stock_symbol",
+    "weight_pct",
+    "sector",
+    "portfolio_date"
+]
+]
+portfolio.to_sql(
+    "fact_portfolio",
+    engine,
+    if_exists="append",
+    index=False
+)
+
+print(f"fact_portfolio loaded : {len(portfolio)} rows")
 
 # VERIFY COUNTS
 
@@ -223,7 +264,9 @@ tables = [
     "fact_nav",
     "fact_transactions",
     "fact_performance",
-    "fact_aum"
+    "fact_aum",
+    "fact_sip_industry",
+    "fact_portfolio"
 ]
 
 for table in tables:

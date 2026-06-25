@@ -21,13 +21,8 @@ join dim_date d on fnav.nav_date_id=d.date_id
 group by d.month;
 -----------------------------------------------------------
 --SIP YoY growth
-select d.year,round(avg(f.sip_amount_crore),2) AS avg_sip_inflow,
-round((avg(f.sip_amount_crore)-lag(avg(f.sip_amount_crore)) 
-over (order by d.year )) / lag(avg(f.sip_amount_crore)) 
-over (order by d.year )* 100,2) as yoy_growth_pct
-from fact_sip_inflows f
-join dim_date d on f.sip_date_id = d.date_id
-group by d.year order bY d.year;
+select month, sip_inflow_crore, yoy_growth_pct
+from fact_sip_industry  order by month;
 
 -----------------------------------------------------------
 --transactions by state 
@@ -70,13 +65,10 @@ order by fund_count desc;
 ------------------------------------------------------------
 --Monthly Transaction Trend
 select
-    d.year,
-    d.month,
-    count(*) AS transaction_count,
-    sum(amount_inr) AS total_amount
-from fact_transactions t
-join dim_date d
-    on t.tx_date_id = d.date_id
-group by d.year,d.month
-order by d.year,d.month;
+    strftime('%Y',date) as year, 
+    strftime('%m',date) as month, COUNT(*) as transaction_count, 
+    ROUND(SUM(amount_inr),2) as total_amount
+from fact_transactions 
+group by year,month
+order by year,month;
 --------------------------------------------------------------------------

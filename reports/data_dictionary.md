@@ -1,154 +1,175 @@
-# Data Dictionary – Bluestock Mutual Funds Capstone
+# Data Dictionary
 
-## Overview
+## Project
 
-This document describes the datasets, database tables, column definitions, data types, business meanings, and source references used in the Bluestock Mutual Funds Capstone Project.
-
----
-
-# Table: dim_fund
-
-**Source:** 01_fund_master.csv
-
-| Column Name       | Data Type | Description                               |
-| ----------------- | --------- | ----------------------------------------- |
-| amfi_code         | TEXT      | Unique AMFI scheme identifier             |
-| fund_house        | TEXT      | Asset Management Company (AMC) name       |
-| scheme_name       | TEXT      | Mutual fund scheme name                   |
-| category          | TEXT      | Broad category (Equity, Debt, Hybrid)     |
-| sub_category      | TEXT      | Detailed category classification          |
-| plan              | TEXT      | Growth or Dividend plan                   |
-| expense_ratio_pct | REAL      | Annual fund management expense percentage |
-| exit_load_pct     | REAL      | Exit fee charged on redemption            |
-| risk_category     | TEXT      | Risk classification of the scheme         |
+Bluestock Mutual Funds Capstone
 
 ---
 
-# Table: dim_date
+# Dimension Tables
 
-**Source:** Generated Calendar Dimension
+## dim_fund
 
-| Column Name | Data Type | Description                             |
-| ----------- | --------- | --------------------------------------- |
-| date_id     | INTEGER   | Surrogate date key in YYYYMMDD format   |
-| date        | DATE      | Calendar date                           |
-| year        | INTEGER   | Calendar year                           |
-| month       | INTEGER   | Month number (1–12)                     |
-| quarter     | INTEGER   | Quarter number (1–4)                    |
-| day_of_week | TEXT      | Day name                                |
-| is_weekend  | INTEGER   | Weekend flag (1 = Weekend, 0 = Weekday) |
+| Column            | Type | Description             |
+| ----------------- | ---- | ----------------------- |
+| amfi_code         | TEXT | Unique AMFI Scheme Code |
+| fund_house        | TEXT | Mutual Fund House       |
+| scheme_name       | TEXT | Scheme Name             |
+| category          | TEXT | Mutual Fund Category    |
+| sub_category      | TEXT | Detailed Category       |
+| plan              | TEXT | Growth/Dividend Plan    |
+| expense_ratio_pct | REAL | Expense Ratio (%)       |
+| exit_load_pct     | REAL | Exit Load (%)           |
+| risk_category     | TEXT | Risk Classification     |
 
----
-
-# Table: fact_nav
-
-**Source:** clean_nav_history.csv
-
-| Column Name  | Data Type | Description                                |
-| ------------ | --------- | ------------------------------------------ |
-| nav_id       | INTEGER   | Unique NAV record identifier               |
-| amfi_code    | TEXT      | Mutual fund identifier                     |
-| nav_date_id  | INTEGER   | Foreign key to dim_date                    |
-| nav          | REAL      | Net Asset Value of the scheme              |
-| daily_return | REAL      | Percentage change in NAV from previous day |
+Source:
+01_fund_master.csv
 
 ---
 
-# Table: fact_transactions
+## dim_date
 
-**Source:** clean_transactions.csv
+| Column      | Type    | Description       |
+| ----------- | ------- | ----------------- |
+| date_id     | INTEGER | YYYYMMDD Date Key |
+| date        | DATE    | Calendar Date     |
+| year        | INTEGER | Year              |
+| month       | INTEGER | Month             |
+| quarter     | INTEGER | Quarter           |
+| day_of_week | TEXT    | Day Name          |
+| is_weekend  | INTEGER | Weekend Flag      |
 
-| Column Name      | Data Type | Description                         |
-| ---------------- | --------- | ----------------------------------- |
-| tx_id            | INTEGER   | Unique transaction identifier       |
-| investor_id      | TEXT      | Unique investor identifier          |
-| amfi_code        | TEXT      | Mutual fund identifier              |
-| tx_date_id       | INTEGER   | Foreign key to dim_date             |
-| amount_inr       | REAL      | Transaction amount in Indian Rupees |
-| state            | TEXT      | Investor state                      |
-| city             | TEXT      | Investor city                       |
-| transaction_type | TEXT      | SIP, Lumpsum, or Redemption         |
-
----
-
-# Table: fact_performance
-
-**Source:** clean_scheme_performance.csv
-
-| Column Name    | Data Type | Description                          |
-| -------------- | --------- | ------------------------------------ |
-| performance_id | INTEGER   | Unique performance record identifier |
-| amfi_code      | TEXT      | Mutual fund identifier               |
-| return_1yr_pct | REAL      | 1-Year annualized return percentage  |
-| return_3yr_pct | REAL      | 3-Year annualized return percentage  |
-| return_5yr_pct | REAL      | 5-Year annualized return percentage  |
-| sharpe_ratio   | REAL      | Risk-adjusted return metric          |
-| sortino_ratio  | REAL      | Downside risk-adjusted return metric |
-| alpha          | REAL      | Excess return relative to benchmark  |
-| beta           | REAL      | Volatility relative to benchmark     |
+Generated using create_dim_date.py
 
 ---
 
-# Table: fact_aum
+# Fact Tables
 
-**Source:** 03_aum_by_fund_house.csv
+## fact_nav
 
-| Column Name | Data Type | Description                             |
-| ----------- | --------- | --------------------------------------- |
-| aum_id      | INTEGER   | Unique AUM record identifier            |
-| fund_house  | TEXT      | Asset Management Company name           |
-| date_id     | INTEGER   | Foreign key to dim_date                 |
-| aum_crore   | REAL      | Assets Under Management (AUM) in Crores |
+Source:
+clean_nav_history.csv
+
+| Column           | Type    | Description          |
+| ---------------- | ------- | -------------------- |
+| amfi_code        | TEXT    | Scheme Code          |
+| nav_date_id      | INTEGER | Date Key             |
+| nav              | REAL    | Net Asset Value      |
+| daily_return_pct | REAL    | Daily NAV Return (%) |
 
 ---
 
-# Data Quality Checks Performed
+## fact_transactions
 
-## NAV History
+Source:
+clean_transactions.csv
 
-* Converted date column to datetime
+| Column           | Type    | Description            |
+| ---------------- | ------- | ---------------------- |
+| tx_id            | INTEGER | Transaction ID         |
+| investor_id      | TEXT    | Investor ID            |
+| date             | DATE    | Transaction Date       |
+| amfi_code        | TEXT    | Scheme Code            |
+| amount_inr       | REAL    | Transaction Amount     |
+| state            | TEXT    | Investor State         |
+| city             | TEXT    | Investor City          |
+| transaction_type | TEXT    | SIP/Lumpsum/Redemption |
+
+---
+
+## fact_performance
+
+Source:
+clean_scheme_performance.csv
+
+| Column           | Type | Description      |
+| ---------------- | ---- | ---------------- |
+| amfi_code        | TEXT | Scheme Code      |
+| return_1yr_pct   | REAL | 1-Year Return    |
+| return_3yr_pct   | REAL | 3-Year Return    |
+| return_5yr_pct   | REAL | 5-Year Return    |
+| sharpe_ratio     | REAL | Sharpe Ratio     |
+| sortino_ratio    | REAL | Sortino Ratio    |
+| alpha            | REAL | Alpha            |
+| beta             | REAL | Beta             |
+| max_drawdown_pct | REAL | Maximum Drawdown |
+
+---
+
+## fact_aum
+
+Source:
+03_aum_by_fund_house.csv
+
+| Column      | Type    | Description             |
+| ----------- | ------- | ----------------------- |
+| fund_house  | TEXT    | AMC Name                |
+| date_id     | INTEGER | Date Key                |
+| aum_crore   | REAL    | Assets Under Management |
+| num_schemes | INTEGER | Number of Schemes       |
+
+---
+
+## fact_sip_industry
+
+Source:
+04_monthly_sip_inflows.csv
+
+| Column                    | Type | Description           |
+| ------------------------- | ---- | --------------------- |
+| month                     | TEXT | Month                 |
+| sip_inflow_crore          | REAL | Monthly SIP Inflow    |
+| active_sip_accounts_crore | REAL | Active SIP Accounts   |
+| new_sip_accounts_lakh     | REAL | New SIP Accounts      |
+| sip_aum_lakh_crore        | REAL | SIP AUM               |
+| yoy_growth_pct            | REAL | Year-over-Year Growth |
+
+---
+
+## fact_portfolio
+
+Source:
+09_portfolio_holdings.csv
+
+| Column         | Type | Description             |
+| -------------- | ---- | ----------------------- |
+| amfi_code      | TEXT | Scheme Code             |
+| stock_symbol   | TEXT | Stock Ticker            |
+| weight_pct     | REAL | Portfolio Weight (%)    |
+| sector         | TEXT | Industry Sector         |
+| portfolio_date | DATE | Portfolio Snapshot Date |
+
+---
+
+# Data Quality Checks
+
 * Removed duplicate records
-* Forward-filled missing NAV values
-* Validated NAV values greater than zero
-
-## Investor Transactions
-
+* Converted date columns to datetime
 * Standardized transaction types
-* Validated positive transaction amounts
-* Corrected date formats
-* Verified KYC status values
-
-## Scheme Performance
-
-* Converted return metrics to numeric types
-* Checked expense ratio range (0.1% – 2.5%)
-* Flagged anomalous values
-* Verified performance metrics completeness
+* Validated NAV > 0
+* Validated transaction amount > 0
+* Validated expense ratio
+* Converted return columns to numeric
+* Created Date Dimension
+* Loaded cleaned data into SQLite Star Schema
 
 ---
 
-# Business Definitions
+# Database Summary
 
-**AMC (Asset Management Company)**
-Company responsible for managing mutual fund schemes.
+Dimensions
 
-**NAV (Net Asset Value)**
-Per-unit market value of a mutual fund scheme.
+* dim_fund
+* dim_date
 
-**AUM (Assets Under Management)**
-Total value of assets managed by an AMC or mutual fund.
+Fact Tables
 
-**SIP (Systematic Investment Plan)**
-Method of investing fixed amounts periodically into mutual funds.
+* fact_nav
+* fact_transactions
+* fact_performance
+* fact_aum
+* fact_sip_industry
+* fact_portfolio
 
-**Expense Ratio**
-Annual fee charged by a mutual fund for management and operational expenses.
-
-**Sharpe Ratio**
-Risk-adjusted performance measure comparing excess return to volatility.
-
-**Alpha**
-Measure of a fund’s performance relative to its benchmark.
-
-**Beta**
-Measure of a fund’s volatility compared to the market.
+```
+```

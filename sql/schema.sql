@@ -25,11 +25,10 @@ CREATE TABLE IF NOT EXISTS dim_date(
 );
 --fact_nav
 CREATE TABLE IF NOT EXISTS fact_nav(
-    nav_id INTEGER PRIMARY KEY AUTOINCREMENT,
     amfi_code TEXT,
     nav_date_id INTEGER,
     nav REAL,
-    daily_return REAL,
+    daily_return_pct REAL,
     FOREIGN KEY(amfi_code) REFERENCES dim_fund(amfi_code),
     FOREIGN KEY(nav_date_id) REFERENCES dim_date(date_id)
 );
@@ -37,18 +36,16 @@ CREATE TABLE IF NOT EXISTS fact_nav(
 CREATE TABLE IF NOT EXISTS fact_transactions(
     tx_id INTEGER PRIMARY KEY,
     investor_id TEXT,
+    date DATE,
     amfi_code TEXT,
-    tx_date_id INTEGER,
     amount_inr REAL,
     state TEXT,
     city TEXT,
     transaction_type TEXT,
-    FOREIGN KEY(amfi_code) REFERENCES dim_fund(amfi_code),
-    FOREIGN KEY(tx_date_id) REFERENCES dim_date(date_id)
+    FOREIGN KEY(amfi_code) REFERENCES dim_fund(amfi_code)
 );
 --fact_performance
-CREATE TABLE IF NOT EXISTS fact_performance(
-    performance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE fact_performance(
     amfi_code TEXT,
     return_1yr_pct REAL,
     return_3yr_pct REAL,
@@ -57,20 +54,33 @@ CREATE TABLE IF NOT EXISTS fact_performance(
     sortino_ratio REAL,
     alpha REAL,
     beta REAL,
+    max_drawdown_pct REAL,
     FOREIGN KEY(amfi_code) REFERENCES dim_fund(amfi_code)
 );
 
 --fact_aum
 CREATE TABLE IF NOT EXISTS fact_aum (
-    aum_id INTEGER PRIMARY KEY AUTOINCREMENT,
     fund_house TEXT,
     date_id INTEGER,
-    aum_crore REAL
+    aum_crore REAL,
+    num_schemes INTEGER,
+    FOREIGN KEY(date_id) REFERENCES dim_date(date_id)
 );
---fact sip_inflows
-CREATE TABLE IF NOT EXISTS fact_sip_inflows(
-    sip_date_id INTEGER,
-    sip_amount_crore REAL,
-    FOREIGN KEY(sip_date_id) REFERENCES dim_date(date_id)
+--fact_sip_industry
+CREATE TABLE IF NOT EXISTS fact_sip_industry(
+    month TEXT,
+    sip_inflow_crore REAL,
+    active_sip_accounts_crore REAL,
+    new_sip_accounts_lakh REAL,
+    sip_aum_lakh_crore REAL,
+    yoy_growth_pct REAL
 );
-
+--fact_portfolio
+CREATE TABLE IF NOT EXISTS fact_portfolio(
+    amfi_code TEXT,
+    stock_symbol TEXT,
+    weight_pct REAL,
+    sector TEXT,
+    portfolio_date DATE,
+    FOREIGN KEY(amfi_code) REFERENCES dim_fund(amfi_code)
+);
