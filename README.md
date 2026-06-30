@@ -76,27 +76,45 @@ The project contains the following datasets:
 
 ---
 
-## Day 1 Progress
+## Project Progress
 
-### Completed
+### ✅ Day 1
+- Project setup
+- Data ingestion
+- Dataset validation
+- Folder structure
 
-- Project structure created
-- Git repository initialized
-- Dependencies installed
-- All datasets loaded successfully
-- Dataset profiling completed
-- Missing value analysis performed
-- Duplicate record validation completed
-- Fund Master dataset analysis completed
-- AMFI code validation completed
-- Live NAV API tested
-- Data quality report generated
+### ✅ Day 2
+- Data cleaning
+- SQLite database design
+- Star schema implementation
+- SQL analytical queries
+- Data dictionary
 
-### Outputs
+### ✅ Day 3
+- Exploratory Data Analysis (15+ charts)
+- NAV trend analysis
+- AUM growth analysis
+- SIP inflow trend
+- Category heatmap
+- Investor demographics
+- Geographic distribution
+- Folio growth
+- Correlation matrix
+- Sector allocation
+- EDA insights
 
-- Dataset Summary Report
-- Data Quality Report
-- Initial Data Ingestion Notebook
+### ✅ Day 4
+- Daily return computation
+- Annualized return calculation
+- CAGR (1Y, 3Y, 5Y)
+- Sharpe Ratio
+- Sortino Ratio
+- Alpha & Beta
+- Maximum Drawdown
+- Fund Scorecard (0–100)
+- Benchmark comparison (Top 5 vs NIFTY50 & NIFTY100)
+- Tracking Error analysis
 
 ---
 
